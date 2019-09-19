@@ -1,5 +1,5 @@
 //TODO: STEP 1 - Import the useState hook.
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import BottomRow from "./BottomRow";
 
@@ -7,7 +7,8 @@ function App() {
   //TODO: STEP 2 - Establish your applictaion's state with some useState hooks.  You'll need one for the home score and another for the away score.
   const [homeScore, setHomeScore] = useState(32);
   const [awayScore, setAwayScore] = useState(31);
-  // const [timer, setTimer] = useState(00:03);
+  const [seconds, setSeconds] = useState(3);
+  const [isActive, setIsActive] = useState(false);
 
   const homeTeam = e => {
     setHomeScore(homeScore + 7);
@@ -15,6 +16,31 @@ function App() {
   const awayTeam = e => {
     setAwayScore(awayScore + 7);
   };
+
+  function toggle() {
+    setIsActive(!isActive);
+  }
+
+  function reset() {
+    setSeconds(0);
+    setIsActive(false);
+  }
+
+  useEffect(() => {
+    let interval = null;
+    if (isActive) {
+      interval = setInterval(() => {
+        if (seconds <= 0) {
+          clearInterval(interval);
+        } else {
+          setSeconds(seconds => seconds - 1);
+        }
+      }, 1000);
+    } else if (!isActive && seconds !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, seconds]);
 
   // setTimeout(() => {
   //   setTimer(!timer)
@@ -33,7 +59,7 @@ function App() {
               <span>{homeScore}</span>
             </div>
           </div>
-          <div className="timer">00:03</div>
+          <div className="timer">{seconds}s</div>
           <div className="away">
             <h2 className="away__name">Tigers</h2>
             <div className="away__score">
@@ -88,10 +114,22 @@ function App() {
             onClick={() => {
               setHomeScore(32);
               setAwayScore(31);
+              setSeconds(3);
+              setIsActive(false);
             }}
           >
             Reset
           </button>
+          <div className="start_button ">
+            <button
+              className={`button button-primary button-primary-${
+                isActive ? "active" : "inactive"
+              }`}
+              onClick={toggle}
+            >
+              {isActive ? "Pause" : "Start"}
+            </button>
+          </div>
         </div>
       </section>
     </div>
